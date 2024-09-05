@@ -5,6 +5,7 @@ import logo from "../assets/logo.png";
 import { FaSave, FaTimes } from "react-icons/fa";
 import { LuFileText } from "react-icons/lu";
 
+
 const WorkOrderPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -60,7 +61,7 @@ const WorkOrderPage = () => {
   };
 
   return (
-    <div className="h-screen p-3 rounded-tr-3xl rounded-br-3xl my-2 mr-3 bg-gradient-to-l from-[#E2E9E9] to-[#ffffff]">
+    <div className="h-screen p-3 rounded-tr-3xl rounded-br-3xl  mr-3 bg-gradient-to-l from-[#E2E9E9] to-[#ffffff]">
       <ToastContainer />
       <div className="flex justify-between">
         <h1 className="text-3xl font-bold mb-4">Work Order</h1>
@@ -84,7 +85,7 @@ const WorkOrderPage = () => {
                     Step Name
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     name="stepName"
                     value={formData.stepName}
                     onChange={handleInputChange}
@@ -111,6 +112,23 @@ const WorkOrderPage = () => {
                   </select>
                 </div>
 
+
+              </div>
+
+              <div className="flex flex-col">
+                <div className="">
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded px-1.5 text-xs"
+                    rows="2"
+                    required
+                  />
+                </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
                     Select Part
@@ -127,22 +145,6 @@ const WorkOrderPage = () => {
                     <option value="part2">Part 2</option>
                     <option value="part3">Part 3</option>
                   </select>
-                </div>
-              </div>
-
-              <div className="flex flex-col">
-                <div className="">
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    className="w-full border border-gray-300 rounded px-1.5 text-xs"
-                    rows="4"
-                    required
-                  />
                 </div>
                 <div className="mt-3 ml-5">
                   <span className="block text-xs font-medium text-gray-700 mb-1">
@@ -175,7 +177,10 @@ const WorkOrderPage = () => {
                     </label>
                   </div>
                 </div>
+
+
               </div>
+
             </div>
 
             <div className="flex justify-center gap-1">
@@ -197,12 +202,12 @@ const WorkOrderPage = () => {
       </div>
 
       {/* Overflow container for saved data */}
-      <div className="overflow-y-auto max-h-80">
-        <div className="grid grid-cols-3 gap-4">
+      <div className="sm:h-32 md:h-56 overflow-y-auto">
+        <div className="flex flex-wrap space-x-3 my-2">
           {savedData.map((data, index) => (
             <div
               key={index}
-              className="p-4 rounded-2xl shadow-md bg-white w-60"
+              className="p-4 rounded-2xl my-2 shadow-md bg-white w-60"
             >
               <div className="flex space-x-2 text-2xl">
                 <LuFileText className="mt-1 text-red-600" />
@@ -215,6 +220,7 @@ const WorkOrderPage = () => {
           ))}
         </div>
       </div>
+
     </div>
   );
 };
