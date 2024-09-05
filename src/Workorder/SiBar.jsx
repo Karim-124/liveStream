@@ -32,11 +32,10 @@ const SiBar = () => {
 
   return (
     <div
-      className={`flex ${
-        isMinimized ? "w-20" : "w-64"
-      }  bg-gradient-to-l from-[#004C88] to-[#3771A0] text-white transition-all duration-300`}
+      className={`flex ${isMinimized ? "w-20" : "w-64"
+        }  bg-gradient-to-l from-[#004C88] to-[#3771A0] text-white transition-all duration-300`}
     >
-      <div className="flex flex-col justify-between h-full">
+      <div className="flex flex-col justify-between">
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto pt-32">
           <ul className="space-y-0.5">
@@ -50,11 +49,8 @@ const SiBar = () => {
             ].map(({ to, icon: Icon, label }, index) => (
               <li
                 key={index}
-                className={`flex items-center py-4 ${
-                  isMinimized ? "px-3" : "px-14"
-                } rounded-xl ${
-                  isMinimized ? "" : "bg-custom-blue"
-                }`}
+                className={`flex items-center cursor-pointer py-4 ${isMinimized ? "px-3" : "px-14"} rounded-xl ${isMinimized ? "" : "bg-custom-blue"
+                  } hover:bg-blue-600 hover:text-white transition-all duration-200`}
               >
                 <Link to={to} className="flex items-center w-full">
                   <Icon className={`mx-auto text-xl ${isMinimized ? "text-white" : ""}`} />
@@ -65,14 +61,14 @@ const SiBar = () => {
               </li>
             ))}
           </ul>
+
         </nav>
 
         {/* Exit Button */}
         <div className="p-4 border-gray-700">
           <button
-            className={`flex items-center ${
-              isMinimized ? "px-3 py-2" : "px-14 py-3 ml-10"
-            } rounded-xl ${isMinimized ? "bg-[#004C88]" : "bg-[#732F46]"}`}
+            className={`flex items-center ${isMinimized ? "px-3 py-2" : "px-14 py-3 ml-10"
+              } rounded-xl ${isMinimized ? "bg-[#004C88]" : "bg-[#732F46]"}`}
           >
             <FaSignOutAlt className={`mx-auto text-xl ${isMinimized ? "text-white" : ""}`} />
             <span className={`${isMinimized ? "hidden" : "block"} `}>
@@ -80,7 +76,7 @@ const SiBar = () => {
             </span>
           </button>
         </div>
-        
+
         <div className="flex justify-end">
           <button
             onClick={() => setIsMinimized(!isMinimized)}

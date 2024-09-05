@@ -4,7 +4,7 @@ import SiBar from './SiBar';
 
 const DasBoard = () => {
   return (
-    <div className="flex h-screen">
+    <div className="flex md:h-[100vh] ">
       <SiBar />
       <div className="flex-1">
         <Outlet />
