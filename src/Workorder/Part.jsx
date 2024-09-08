@@ -18,7 +18,8 @@ const Part = () => {
   const [editId, setEditId] = useState(null);
   const [mediaPreview, setMediaPreview] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false); // Confirm delete modal
+  const [partToDelete, setPartToDelete] = useState(null);
   const apiURL = "http://127.0.0.1:8000/api/parts/";
 
   // Fetch parts data from the API
@@ -126,11 +127,12 @@ const Part = () => {
   };
 
   // Delete part
-  const handleDelete = async (id) => {
+  const handleDelete = async () => {
     try {
-      await axios.delete(`${apiURL}${id}/`);
+      await axios.delete(`${apiURL}${partToDelete}/`);
       toast.success("Part deleted successfully!");
-      fetchParts(); // Re-fetch the updated parts list
+      fetchParts();
+      setShowConfirmDelete(false); // Close confirm delete modal
     } catch (error) {
       toast.error("Failed to delete part.");
     }
@@ -288,6 +290,68 @@ const Part = () => {
         )}
       </div>
 
+      {showConfirmDelete && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
+          <div className="relative p-4 text-center bg-white rounded-lg shadow  sm:p-5">
+            <button
+              onClick={() => setIsDeleteConfirmOpen(false)}
+              type="button"
+              className="text-gray-400 absolute top-2.5 right-2.5  rounded-lg text-sm p-1.5 ml-auto inline-flex items-center  "
+              data-modal-toggle="deleteModal"
+            >
+              <svg
+                aria-hidden="true"
+                className="w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M6.293 4.293a1 1 0 011.414 0L10 5.586l2.293-1.293a1 1 0 111.414 1.414L11.414 7l2.293 2.293a1 1 0 01-1.414 1.414L10 8.414l-2.293 2.293a1 1 0 01-1.414-1.414L8.586 9l-2.293-2.293a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                ></path>
+              </svg>
+              <span className="sr-only">Close modal</span>
+            </button>
+            <div className="mt-3">
+              <h3 className="text-lg font-medium  ">
+                Are you sure you want to delete this Reason Group?
+              </h3>
+              <svg
+                className="text-gray-400  w-11 h-11 mb-3.5 mx-auto"
+                aria-hidden="true"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                  clipRule="evenodd"
+                ></path>
+              </svg>
+            </div>
+            <div className="flex justify-center gap-4 mt-4">
+              <button
+                type="button"
+                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200"
+                onClick={handleDelete}
+              >
+                Yes, delete
+              </button>
+              <button
+                type="button"
+                className="text-gray-500 bg-white border border-gray-200 rounded-lg px-4 py-2 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-600"
+                onClick={() => setShowConfirmDelete(false)}
+              >
+                No, cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Overflow container for saved data */}
       <div className="sm:h-32 md:h-96 overflow-y-auto">
         <div className="flex flex-wrap space-x-3 my-2">
@@ -321,7 +385,10 @@ const Part = () => {
                     <FaEdit onClick={() => handleEdit(part)} size={18} />
                   </button>
                   <button className="flex items-center justify-center p-2 text-red-600 bg-white border border-red-300 rounded-full shadow-sm hover:bg-red-50 hover:text-red-800 transition-colors duration-300">
-                    <FaTrash onClick={() => handleDelete(part.id)} size={18} />
+                    <FaTrash onClick={() => {
+                      setShowConfirmDelete(true);
+                      setPartToDelete(part.id);
+                    }} size={18} />
                   </button>
                 </div>
               </div>
