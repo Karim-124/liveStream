@@ -6,9 +6,10 @@ import Dashboard from "./LiveStream"
 import LiveStream from "./LiveStream"
 import DasBoard from "./Workorder/DasBoard"
 import SiBar from "./Workorder/SiBar"
-import WorkOrderPage from "./Workorder/WorkOrderPage"
 import Part from "./Workorder/Part";
 import Product from "./Workorder/Product";
+import Step from "./Workorder/Step";
+import WorkOrder from "./Workorder/WorkOrder";
 
 
 function App() {
@@ -19,9 +20,10 @@ function App() {
         <Routes>
           <Route path="/" element={<DasBoard />}>
             <Route index element={<div>Home Page</div>} />
-            <Route path="work-order" element={<WorkOrderPage />} />
+            <Route path="step" element={<Step />} />
             <Route path="part" element={<Part />} />
             <Route path="product" element={<Product />} />
+            <Route path="work-order" element={<WorkOrder />} />
             {/* Add more routes here */}
           </Route>
         </Routes>

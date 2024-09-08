@@ -39,7 +39,7 @@ const SiBar = () => {
     >
       <div className="flex flex-col justify-between">
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto pt-32">
+        <nav className="flex-1 overflow-y-auto pt-24">
           <ul className="space-y-0.5">
             {[{ to: "/", icon: FaTachometerAlt, label: "Dashboard" },
             {
@@ -82,8 +82,8 @@ const SiBar = () => {
                 {isSubMenu && isWorkOrderOpen && !isMinimized && (
                   <ul className="ml-4">
                     <li>
-                      <Link to="work-order" className="flex items-center pt-1 px-1">
-                        <span className="ml-3">Work Order</span>
+                      <Link to="step" className="flex items-center pt-1 px-1">
+                        <span className="ml-3">Step</span>
                       </Link>
                     </li>
                     <li>
@@ -94,6 +94,9 @@ const SiBar = () => {
                     <li>
                       <Link to="product" className="flex items-center py-1 px-1 ">
                         <span className="ml-3">Product</span>
+                      </Link>
+                      <Link to="work-order" className="flex items-center py-1 px-1 ">
+                        <span className="ml-3">Work Order</span>
                       </Link>
                     </li>
                   </ul>
