@@ -1,22 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import logo from "../assets/logo.png";
 import { FaEdit, FaSave, FaTimes, FaTrash, FaUpload } from "react-icons/fa";
-import { LuFileText } from "react-icons/lu";
 
 const Part = () => {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     partName: "",
     partDim: "",
-    part: "",
     partImage: null,
     media: null,
   });
   const [savedData, setSavedData] = useState([]);
+  const [editMode, setEditMode] = useState(false);
+  const [editId, setEditId] = useState(null);
   const [mediaPreview, setMediaPreview] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+
+  const apiURL = "http://127.0.0.1:8000/api/parts/";
+
+  // Fetch parts data from the API
+  useEffect(() => {
+    axios
+      .get(apiURL)
+      .then((response) => setSavedData(response.data))
+      .catch((error) => console.log(error));
+    ;
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -45,46 +57,84 @@ const Part = () => {
     }
   };
 
-  const handleSave = () => {
-    if (
-      formData.partName.trim() === "" ||
-      formData.partDim.trim() === "" ||
-      !formData.partImage
-    ) {
-      toast.error(
-        "Please fill in all fields and upload an image before saving."
-      );
+  // Save or Edit part
+  const handleSave = async () => {
+    const { partName, partDim, partImage, media } = formData;
+
+    if (partName.trim() === "" || partDim.trim() === "" || !partImage) {
+      toast.error("Please fill in all fields and upload an image before saving.");
       return;
     }
 
-    setSavedData((prev) => [...prev, formData]);
+    const data = new FormData();
+    data.append("part_name", partName);
+    data.append("part_dimensions", partDim);
+    if (partImage) data.append("image", partImage);
+    if (media) data.append("video", media);
+
+    try {
+      if (editMode) {
+        // Update the part using PUT
+        await axios.put(`${apiURL}${editId}/`, data);
+        toast.success("Part updated successfully!");
+      } else {
+        // Create a new part using POST
+        await axios.post(apiURL, data);
+        toast.success("Part saved successfully!");
+      }
+      fetchParts(); // Re-fetch the updated parts list
+      resetForm();
+    } catch (error) {
+      toast.error("Failed to save part data.");
+    }
+  };
+
+  // Fetch parts
+  const fetchParts = () => {
+    axios
+      .get(apiURL)
+      .then((response) => setSavedData(response.data))
+      .catch((error) => toast.error("Failed to fetch parts"));
+  };
+
+  // Reset form fields
+  const resetForm = () => {
     setFormData({
       partName: "",
       partDim: "",
-      part: "",
       partImage: null,
       media: null,
     });
     setMediaPreview(null);
     setImagePreview(null);
+    setEditMode(false);
+    setEditId(null);
     setShowModal(false);
-    toast.success("Data saved successfully!");
   };
 
-  const handleRemove = () => {
-    setShowModal(false);
+  // Edit part
+  const handleEdit = (part) => {
     setFormData({
-      partName: "",
-      partDim: "",
-      part: "",
+      partName: part.part_name,
+      partDim: part.part_dimensions,
       partImage: null,
       media: null,
     });
-    setMediaPreview(null);
-    setImagePreview(null);
-    toast.info("Form cleared.");
+    setEditId(part.id);
+    setEditMode(true);
+    setShowModal(true);
   };
 
+  // Delete part
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`${apiURL}${id}/`);
+      toast.success("Part deleted successfully!");
+      fetchParts(); // Re-fetch the updated parts list
+    } catch (error) {
+      toast.error("Failed to delete part.");
+    }
+  };
   return (
     <div className="md:h-screen p-3 rounded-tr-3xl rounded-br-3xl lg:mr-3 bg-gradient-to-l from-[#E2E9E9] to-[#ffffff]">
       <ToastContainer />
@@ -225,9 +275,10 @@ const Part = () => {
                     <FaSave /> Save
                   </button>
                   <button
+                    onClick={() => setShowModal(false)}
                     className="bg-red-500 text-white px-3 py-2 rounded flex items-center gap-1 text-xs sm:text-sm hover:bg-red-600"
-                    onClick={handleRemove}
                   >
+
                     <FaTimes /> Remove
                   </button>
                 </div>
@@ -240,39 +291,48 @@ const Part = () => {
       {/* Overflow container for saved data */}
       <div className="sm:h-32 md:h-96 overflow-y-auto">
         <div className="flex flex-wrap space-x-3 my-2">
-          {savedData.map((data, index) => (
-            <div
-              key={index}
-              className="w-64 bg-white rounded-xl border border-gray-300 shadow-lg my-1"
-            >
-              {data.partImage && (
-                <img
-                  src={URL.createObjectURL(data.partImage)}
-                  alt="Part"
-                  className="h-48 w-full object-cover rounded-t-xl border-b"
-                />
-              )}
-              <div className="px-4 py-3">
+          {savedData.length > 0 ? (
+            savedData.map((part) => (
+              <div
+                key={part.id}
+                className="w-64 bg-white rounded-xl border border-gray-300 shadow-lg my-1"
+              >
+                {part.image && (
+                  <img
+                    src={typeof part.image === "string" ? part.image : URL.createObjectURL(part.image)}
+                    alt="Part"
+                    className="h-48 w-full object-cover rounded-t-xl border-b"
+                  />
+                )}
 
-                <div className="text-sm text-gray-600">
-                  <p>
-                    <strong>Part Name:</strong> {data.partName}
-                  </p>
-                  <p>
-                    <strong>Part Dimensions:</strong> {data.partDim}
-                  </p>
+                <div className="px-4 py-3">
+
+                  <div className="text-sm text-gray-600">
+                    <p>
+                      <strong>Part Name:</strong> {part.part_name}
+                    </p>
+                    <p>
+                      <strong>Part Dimensions:</strong> {part.part_dimensions}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex justify-center space-x-3  bg-gray-100 rounded-lg shadow-md p-2">
+                  <button className="flex items-center justify-center p-2 text-blue-600 bg-white border border-blue-300 rounded-full shadow-sm hover:bg-blue-50 hover:text-blue-800 transition-colors duration-300">
+                    <FaEdit onClick={() => handleEdit(part)} size={18} />
+                  </button>
+                  <button className="flex items-center justify-center p-2 text-red-600 bg-white border border-red-300 rounded-full shadow-sm hover:bg-red-50 hover:text-red-800 transition-colors duration-300">
+                    <FaTrash onClick={() => handleDelete(part.id)} size={18} />
+                  </button>
                 </div>
               </div>
-              <div className="flex justify-center space-x-3  bg-gray-100 rounded-lg shadow-md p-2">
-                <button className="flex items-center justify-center p-2 text-blue-600 bg-white border border-blue-300 rounded-full shadow-sm hover:bg-blue-50 hover:text-blue-800 transition-colors duration-300">
-                  <FaEdit size={18} />
-                </button>
-                <button className="flex items-center justify-center p-2 text-red-600 bg-white border border-red-300 rounded-full shadow-sm hover:bg-red-50 hover:text-red-800 transition-colors duration-300">
-                  <FaTrash size={18} />
-                </button>
-              </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <tr>
+              <td colSpan={4} className="p-3 text-center">
+                No parts available.
+              </td>
+            </tr>
+          )}
         </div>
       </div>
     </div>
