@@ -393,7 +393,7 @@ const Product = () => {
 
                                     <div className="text-sm text-gray-600">
                                         <p>
-                                            <strong>Product Name:</strong> {part.product_name}
+                                            <strong>Step Name:</strong> {part.step_name }
                                         </p>
                                         <p>
                                             <strong>Product Code:</strong> {part.product_code}
