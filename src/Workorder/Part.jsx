@@ -18,18 +18,21 @@ const Part = () => {
   const [editId, setEditId] = useState(null);
   const [mediaPreview, setMediaPreview] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [showConfirmDelete, setShowConfirmDelete] = useState(false); // Confirm delete modal
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [partToDelete, setPartToDelete] = useState(null);
   const apiURL = "http://127.0.0.1:8000/api/parts/";
 
   // Fetch parts data from the API
   useEffect(() => {
+    fetchParts();
+  }, []);
+
+  const fetchParts = () => {
     axios
       .get(apiURL)
       .then((response) => setSavedData(response.data))
-      .catch((error) => console.log(error));
-    ;
-  }, []);
+      .catch((error) => toast.error("Failed to fetch parts"));
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -90,14 +93,6 @@ const Part = () => {
     }
   };
 
-  // Fetch parts
-  const fetchParts = () => {
-    axios
-      .get(apiURL)
-      .then((response) => setSavedData(response.data))
-      .catch((error) => toast.error("Failed to fetch parts"));
-  };
-
   // Reset form fields
   const resetForm = () => {
     setFormData({
@@ -126,6 +121,12 @@ const Part = () => {
     setShowModal(true);
   };
 
+  // Show confirm delete modal
+  const openDeleteConfirm = (id) => {
+    setPartToDelete(id);
+    setShowConfirmDelete(true);
+  };
+
   // Delete part
   const handleDelete = async () => {
     try {
@@ -136,7 +137,7 @@ const Part = () => {
     } catch (error) {
       toast.error("Failed to delete part.");
     }
-  };
+  };  
   return (
     <div className="md:h-screen p-3 rounded-tr-3xl rounded-br-3xl lg:mr-3 bg-gradient-to-l from-[#E2E9E9] to-[#ffffff]">
       <ToastContainer />
@@ -264,6 +265,7 @@ const Part = () => {
                         className="mt-3 w-full h-48 object-cover rounded-md border border-gray-300 shadow-sm"
                       />
                     )}
+
                   </div>
 
                 </div>

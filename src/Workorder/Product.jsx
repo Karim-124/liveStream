@@ -70,39 +70,55 @@ const Product = () => {
     const handleSave = async () => {
         const { productName, productCode, description, createdBy, partImage, media } = formData;
 
-        if (productName.trim() === "" || productCode.trim() === "" || !partImage) {
+        // Validation for mandatory fields
+        if (productName.trim() === "" || productCode.trim() === "" || (!partImage && !imagePreview)) {
             toast.error("Please fill in all fields and upload an image before saving.");
             return;
         }
 
-        // Assuming `createdBy` should be a number (e.g., user ID)
-        const createdByPk = parseInt(createdBy, 10); // Convert to integer if needed
-
+        const createdByPk = parseInt(createdBy, 10);
         const data = new FormData();
         data.append("product_name", productName);
         data.append("product_code", productCode);
         data.append("description", description);
-        data.append("created_by", createdByPk); // Use the integer ID
-        if (partImage) data.append("image", partImage);
-        if (media) data.append("video", media);
+        data.append("created_by", createdByPk);
+        if (partImage) {
+            data.append("image", partImage);
+        } else if (imagePreview) {
+            data.append("existing_image", imagePreview);
+        }
+
+        if (media) {
+            data.append("video", media);
+        } else if (mediaPreview) {
+            data.append("existing_video", mediaPreview);
+        }
 
         try {
             if (editMode) {
-                // Update the part using PUT
-                await axios.put(`${apiURL}${editId}/`, data);
+                await axios.put(`${apiURL}${editId}/`, data, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
                 toast.success("Product updated successfully!");
             } else {
-                // Create a new part using POST
-                await axios.post(apiURL, data);
+                await axios.post(apiURL, data, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
                 toast.success("Product saved successfully!");
             }
-            fetchParts(); // Re-fetch the updated parts list
+            fetchParts();
             resetForm();
         } catch (error) {
             toast.error("Failed to save product data.");
             console.log(error);
         }
     };
+
+
 
 
     // Fetch parts
@@ -131,19 +147,31 @@ const Product = () => {
     };
 
     // Edit part
+    // Edit part
     const handleEdit = (part) => {
         setFormData({
             productName: part.product_name,
             productCode: part.product_code,
             description: part.description,
             createdBy: part.created_by,
-            partImage: null,
-            media: null,
+            partImage: null, // Resetting image to null (new image can be uploaded)
+            media: null, // Resetting media to null (new media can be uploaded)
         });
+
+        // Set the existing media previews if they are available
+        if (part.image) {
+            setImagePreview(part.image); // Assuming part.image contains the image URL
+        }
+
+        if (part.video) {
+            setMediaPreview(part.video); // Assuming part.video contains the video URL
+        }
+
         setEditId(part.id);
         setEditMode(true);
         setShowModal(true);
     };
+
 
     // Delete part
     const handleDelete = async () => {
@@ -393,7 +421,7 @@ const Product = () => {
 
                                     <div className="text-sm text-gray-600">
                                         <p>
-                                            <strong>Step Name:</strong> {part.step_name }
+                                            <strong>Prouct Name:</strong> {part.product_name}
                                         </p>
                                         <p>
                                             <strong>Product Code:</strong> {part.product_code}
