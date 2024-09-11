@@ -10,12 +10,28 @@ const LoginModal = () => {
     const [error, setError] = useState(""); // State for error message
     const { login } = useUser(); // Get login function from context
 
+    // Replace with actual tokens if necessary
+    const token = {
+        refresh: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcyNjE1MDQwOCwiaWF0IjoxNzI2MDY0MDA4LCJqdGkiOiIyMWZiOWYxZDk0MjQ0NjZhOGUzYTczOWY2ZTQ1YTAzNiIsInVzZXJfaWQiOjJ9.sfoLDX5H54EwKxUMWv826wFOYbMt_mABBOADl7MOFNc",
+        access: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI2MDY3NjA4LCJpYXQiOjE3MjYwNjQwMDgsImp0aSI6IjBkZmEwZDVlYzRkMzQ1NWU5OTg1YmRhZTY0MzFlNGM1IiwidXNlcl9pZCI6Mn0.tigqvuG4u864FK-zbAJYRY4s_H_YkPU6m6ehEdNmnas"
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(""); // Clear any existing error
 
         try {
-            const response = await axios.post('http://your-api-url/login', { email, password });
+            const response = await axios.post(
+                'http://127.0.0.1:8000/users',
+                { email, password },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token.access}`, // Include the access token here
+                        'Content-Type': 'application/json'
+                    }
+                }
+
+            );
             const userData = response.data;
             login(userData); // Set user data in context
             setIsModalVisible(false); // Close the modal on successful login

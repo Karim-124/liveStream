@@ -137,7 +137,7 @@ const WorkOrder = () => {
             <div className="flex justify-between">
                 <div>
                     <h1 className="text-3xl font-bold mb-2">Work Order</h1>
-                    <h2 className="text-xl font-semibold text-gray-600">Product</h2>
+                    <h2 className="text-xl font-semibold text-gray-600">Work Order</h2>
                 </div>
                 <img src={logo} className="w-28 md:w-48 lg:-mr-5 -mt-5" alt="Logo" />
             </div>
@@ -189,6 +189,7 @@ const WorkOrder = () => {
                                         <option value="Pending">Pending</option>
                                         <option value="In Progress">In Progress</option>
                                         <option value="Complete">Complete</option>
+                                        <option value="Complete">Cancle</option>
                                     </select>
                                 </div>
 

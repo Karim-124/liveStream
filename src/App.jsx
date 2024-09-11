@@ -10,6 +10,7 @@ import Part from "./Workorder/Part";
 import Product from "./Workorder/Product";
 import Step from "./Workorder/Step";
 import WorkOrder from "./Workorder/WorkOrder";
+import DashboardStatstics from "./Workorder/DashboardStatstics";
 
 
 function App() {
@@ -19,7 +20,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<DasBoard />}>
-            <Route index element={<div>Home Page</div>} />
+            <Route index element={<DashboardStatstics />} />
             <Route path="step" element={<Step />} />
             <Route path="part" element={<Part />} />
             <Route path="product" element={<Product />} />
