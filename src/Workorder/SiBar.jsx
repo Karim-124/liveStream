@@ -11,11 +11,15 @@ import {
   FaBars,
   FaChevronLeft,
   FaChevronDown,
+  FaUserCircle // Add the person icon
+
 } from "react-icons/fa";
+import { useUser } from '../CONTEXT/UserContext';
 
 const SiBar = () => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isWorkOrderOpen, setIsWorkOrderOpen] = useState(false);
+  const { user, logout } = useUser(); // Get user and logout function from context
 
   useEffect(() => {
     const handleResize = () => {
@@ -38,8 +42,18 @@ const SiBar = () => {
         }  bg-gradient-to-l from-[#004C88] to-[#3771A0] text-white transition-all duration-300`}
     >
       <div className="flex flex-col justify-between">
+        {/* User Info */}
+        {user && (
+          <div className={`p-4 my-12 flex items-center ${isMinimized ? "text-xs" : "text-lg"} text-center `}>
+            <FaUserCircle className={`text-3xl ${isMinimized ? "mr-2" : "mr-4"}`} />
+            <p className={`${isMinimized ? "hidden" : "block"} ml-2`}>
+              Welcome <span className="font-semibold ">{user.username}</span>
+            </p>
+          </div>
+        )}
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto pt-24">
+        <nav className="flex-1 overflow-y-auto">
+
           <ul className="space-y-0.5">
             {[{ to: "/", icon: FaTachometerAlt, label: "Dashboard" },
             {
@@ -110,6 +124,7 @@ const SiBar = () => {
         {/* Exit Button */}
         <div className="p-4 border-gray-700">
           <button
+            onClick={logout}
             className={`flex items-center ${isMinimized ? "px-3 py-2" : "px-14 py-3 ml-10"
               } rounded-xl ${isMinimized ? "bg-[#004C88]" : "bg-[#732F46]"}`}
           >

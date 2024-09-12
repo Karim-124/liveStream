@@ -1,35 +1,22 @@
-import React, { useState } from "react";
-import axios from "axios";
-import logo from "./assets/logo.png";
+// src/components/LoginModal.js
+import React, { useState } from 'react';
+import logo from './assets/logo.png';
+import { useUser } from '../src/CONTEXT/UserContext';
+
 
 const LoginModal = () => {
+    const { login, isModalVisible } = useUser();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [token, setToken] = useState('');
-    const [isModalVisible, setIsModalVisible] = useState(true);
-    const [error, setError] = useState("");
-
-    const handleCancel = () => {
-        setIsModalVisible(false);
-    };
+    const [error, setError] = useState('');
 
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Prevent the default form submission
-
-        console.log('Login button clicked'); // Debugging log
-
+        e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8000/users/token/', {
-                username,
-                password
-            });
-
-            console.log('Response data:', response.data); // Debugging log
-            setToken(response.data.token); // Adjust based on actual response
+            await login(username, password);
             setError('');
-        } catch (error) {
-            console.error('Error:', error); // Debugging log
-            setError(error.response?.data?.detail || 'Login failed');
+        } catch (err) {
+            setError('Login failed. Please try again.');
         }
     };
 
@@ -42,7 +29,7 @@ const LoginModal = () => {
             <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl flex relative">
                 <button
                     className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-                    onClick={handleCancel}
+                    onClick={() => setIsModalVisible(false)}
                     aria-label="Close"
                 >
                     &#10005;
@@ -79,7 +66,6 @@ const LoginModal = () => {
                                     className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
                                     placeholder="Enter your username"
                                     required
-                                    aria-describedby="username-error"
                                 />
                             </div>
                             <div className="mb-6">
@@ -94,12 +80,11 @@ const LoginModal = () => {
                                     className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
                                     placeholder="Enter your password"
                                     required
-                                    aria-describedby="password-error"
                                 />
                             </div>
 
                             {error && (
-                                <div className="mb-4 text-red-500" id="login-error">
+                                <div className="mb-4 text-red-500">
                                     {error}
                                 </div>
                             )}

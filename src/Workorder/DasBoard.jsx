@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
+// src/components/Dashboard.js
+import React from 'react';
 import { Outlet } from 'react-router-dom';
 import SiBar from './SiBar';
 import LoginModal from '../LoginModal';
+import { useUser } from '../CONTEXT/UserContext';
 
-const DasBoard = () => {
-  const [isModalVisible, setIsModalVisible] = useState(true); // State to control modal visibility
-
-  const toggleModal = () => {
-    setIsModalVisible(!isModalVisible);
-  };
+const Dashboard = () => {
+  const { isModalVisible, user } = useUser();
 
   return (
     <div className="flex md:h-[100vh] relative">
       <SiBar />
       <div className="flex-1">
         <Outlet />
+
       </div>
 
       {/* Include the modal */}
@@ -22,7 +21,7 @@ const DasBoard = () => {
 
       {/* Button to toggle modal visibility (for demonstration purposes) */}
       <button
-        onClick={toggleModal}
+        onClick={() => setIsModalVisible(!isModalVisible)}
         className="fixed bottom-5 right-5 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 z-50"
       >
         Toggle Modal
@@ -31,4 +30,4 @@ const DasBoard = () => {
   );
 };
 
-export default DasBoard;
+export default Dashboard;
