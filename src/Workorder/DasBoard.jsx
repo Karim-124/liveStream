@@ -18,7 +18,7 @@ const DasBoard = () => {
       </div>
 
       {/* Include the modal */}
-      {/* {isModalVisible && <LoginModal />} */}
+      {isModalVisible && <LoginModal />}
 
       {/* Button to toggle modal visibility (for demonstration purposes) */}
       <button

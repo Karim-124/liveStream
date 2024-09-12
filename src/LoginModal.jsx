@@ -1,48 +1,36 @@
 import React, { useState } from "react";
 import axios from "axios";
 import logo from "./assets/logo.png";
-import { useUser } from "../src/CONTEXT/UserContext"; // Import your UserContext
 
 const LoginModal = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [token, setToken] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(true);
-    const [error, setError] = useState(""); // State for error message
-    const { login } = useUser(); // Get login function from context
-
-    // Replace with actual tokens if necessary
-    const token = {
-        refresh: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcyNjE1MDQwOCwiaWF0IjoxNzI2MDY0MDA4LCJqdGkiOiIyMWZiOWYxZDk0MjQ0NjZhOGUzYTczOWY2ZTQ1YTAzNiIsInVzZXJfaWQiOjJ9.sfoLDX5H54EwKxUMWv826wFOYbMt_mABBOADl7MOFNc",
-        access: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI2MDY3NjA4LCJpYXQiOjE3MjYwNjQwMDgsImp0aSI6IjBkZmEwZDVlYzRkMzQ1NWU5OTg1YmRhZTY0MzFlNGM1IiwidXNlcl9pZCI6Mn0.tigqvuG4u864FK-zbAJYRY4s_H_YkPU6m6ehEdNmnas"
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError(""); // Clear any existing error
-
-        try {
-            const response = await axios.post(
-                'http://127.0.0.1:8000/users',
-                { email, password },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token.access}`, // Include the access token here
-                        'Content-Type': 'application/json'
-                    }
-                }
-
-            );
-            const userData = response.data;
-            login(userData); // Set user data in context
-            setIsModalVisible(false); // Close the modal on successful login
-            console.log(response);
-        } catch (error) {
-            setError("Login failed. Please check your credentials.");
-        }
-    };
+    const [error, setError] = useState("");
 
     const handleCancel = () => {
         setIsModalVisible(false);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault(); // Prevent the default form submission
+
+        console.log('Login button clicked'); // Debugging log
+
+        try {
+            const response = await axios.post('http://localhost:8000/users/token/', {
+                username,
+                password
+            });
+
+            console.log('Response data:', response.data); // Debugging log
+            setToken(response.data.token); // Adjust based on actual response
+            setError('');
+        } catch (error) {
+            console.error('Error:', error); // Debugging log
+            setError(error.response?.data?.detail || 'Login failed');
+        }
     };
 
     if (!isModalVisible) {
@@ -80,18 +68,18 @@ const LoginModal = () => {
 
                         <form onSubmit={handleSubmit}>
                             <div className="mb-4">
-                                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                                    Email
+                                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+                                    Username
                                 </label>
                                 <input
-                                    id="email"
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    id="username"
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
                                     className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-                                    placeholder="Enter your email"
+                                    placeholder="Enter your username"
                                     required
-                                    aria-describedby="email-error"
+                                    aria-describedby="username-error"
                                 />
                             </div>
                             <div className="mb-6">
