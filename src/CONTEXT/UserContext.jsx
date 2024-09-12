@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify'; // Import toast for notifications
 
 const UserContext = createContext();
 
@@ -33,7 +34,9 @@ export const UserProvider = ({ children }) => {
             setIsModalVisible(false); // Hide modal on successful login
         } catch (error) {
             console.error('Login failed:', error);
+            toast.error('Login failed. Please check your username and password.'); // Notify user of failure
             setIsAuthenticated(false);
+            throw error; // Ensure the error is thrown to be caught by the component
         }
     };
 

@@ -4,8 +4,9 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import logo from "../assets/logo.png";
 import { FaEdit, FaSave, FaTimes, FaTrash, FaUpload } from "react-icons/fa";
-
+import { useUser } from "../CONTEXT/UserContext"; // Import the useUser hook
 const Part = () => {
+  const { user } = useUser(); // Get the user from context, which contains the token
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     partName: "",
@@ -28,8 +29,9 @@ const Part = () => {
   }, []);
 
   const fetchParts = () => {
+    const headers = { Authorization: `Bearer ${user?.token}` };
     axios
-      .get(apiURL)
+      .get(apiURL, { headers })
       .then((response) => setSavedData(response.data))
       .catch((error) => toast.error("Failed to fetch parts"));
   };
@@ -75,15 +77,15 @@ const Part = () => {
     data.append("part_dimensions", partDim);
     if (partImage) data.append("image", partImage);
     if (media) data.append("video", media);
-
+    const headers = { Authorization: `Bearer ${user?.token}` };
     try {
       if (editMode) {
         // Update the part using PUT
-        await axios.put(`${apiURL}${editId}/`, data);
+        await axios.put(`${apiURL}${editId}/`, data, { headers });
         toast.success("Part updated successfully!");
       } else {
         // Create a new part using POST
-        await axios.post(apiURL, data);
+        await axios.post(apiURL, data, { headers });
         toast.success("Part saved successfully!");
       }
       fetchParts(); // Re-fetch the updated parts list
@@ -113,8 +115,8 @@ const Part = () => {
     setFormData({
       partName: part.part_name,
       partDim: part.part_dimensions,
-      partImage: null,
-      media: null,
+      partImage: part.partImage,
+      media: part.media,
     });
     setEditId(part.id);
     setEditMode(true);
@@ -129,15 +131,16 @@ const Part = () => {
 
   // Delete part
   const handleDelete = async () => {
+    const headers = { Authorization: `Bearer ${user?.token}` };
     try {
-      await axios.delete(`${apiURL}${partToDelete}/`);
+      await axios.delete(`${apiURL}${partToDelete}/`, { headers });
       toast.success("Part deleted successfully!");
       fetchParts();
       setShowConfirmDelete(false); // Close confirm delete modal
     } catch (error) {
       toast.error("Failed to delete part.");
     }
-  };  
+  };
   return (
     <div className="md:h-screen p-3 rounded-tr-3xl rounded-br-3xl lg:mr-3 bg-gradient-to-l from-[#E2E9E9] to-[#ffffff]">
       <ToastContainer />

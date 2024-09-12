@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import logo from './assets/logo.png';
 import { useUser } from '../src/CONTEXT/UserContext';
-
+import { toast } from 'react-toastify'; // Import toast for notifications
+import 'react-toastify/dist/ReactToastify.css';
 
 const LoginModal = () => {
     const { login, isModalVisible } = useUser();
@@ -15,8 +16,10 @@ const LoginModal = () => {
         try {
             await login(username, password);
             setError('');
+            toast.success("Login successful!"); // Show success toast on login
         } catch (err) {
             setError('Login failed. Please try again.');
+            toast.error('Login failed. Please check your credentials.'); // Show error toast on login failure
         }
     };
 
