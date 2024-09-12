@@ -6,7 +6,9 @@ import logo from "../assets/logo.png";
 import { FaEdit, FaSave, FaTimes, FaTrash } from "react-icons/fa";
 import { LuFileText } from "react-icons/lu";
 import gold from "../assets/gold.jpg";
+import { useUser } from "../CONTEXT/UserContext"; // Import the useUser hookimport { useUser } from "../CONTEXT/UserContext"; // Import the useUser hook
 const Step = () => {
+  const { user } = useUser(); // Get the user from context, which contains the token
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     stepName: "",
@@ -30,18 +32,21 @@ const Step = () => {
 
   // Fetch assembly steps, parts, and products data from APIs
   useEffect(() => {
-    axios.get(stepsApiUrl)
+    const headers = { Authorization: `Bearer ${user?.token}` }; // Token headers
+
+    axios.get(stepsApiUrl, { headers })
       .then(response => setSavedData(response.data))
       .catch(error => console.log(error));
 
-    axios.get(partsApiUrl)
+    axios.get(partsApiUrl, { headers })
       .then(response => setPartsData(response.data))
       .catch(error => console.log(error));
 
-    axios.get(productsApiUrl)
+    axios.get(productsApiUrl, { headers })
       .then(response => setProductsData(response.data))
       .catch(error => console.log(error));
-  }, []);
+  }, [user?.token]); // Include the token as a dependency
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -68,13 +73,14 @@ const Step = () => {
     data.append("part", part);
     data.append("product", product);
 
+    const headers = { Authorization: `Bearer ${user?.token}` }; // Add token to the request headers
 
     try {
       if (editMode) {
-        await axios.put(`${stepsApiUrl}${editId}/`, data);
+        await axios.put(`${stepsApiUrl}${editId}/`, data, { headers });
         toast.success("Step updated successfully!");
       } else {
-        await axios.post(stepsApiUrl, data);
+        await axios.post(stepsApiUrl, data, { headers });
         toast.success("Step saved successfully!");
       }
       fetchSteps();
@@ -86,7 +92,9 @@ const Step = () => {
   };
 
   const fetchSteps = () => {
-    axios.get(stepsApiUrl)
+    const headers = { Authorization: `Bearer ${user?.token}` }; // Add token to the request headers
+
+    axios.get(stepsApiUrl, { headers })
       .then(response => setSavedData(response.data))
       .catch(error => toast.error("Failed to fetch steps"));
   };
@@ -120,8 +128,10 @@ const Step = () => {
   };
 
   const handleDelete = async () => {
+    const headers = { Authorization: `Bearer ${user?.token}` }; // Add token to the request headers
+
     try {
-      await axios.delete(`${stepsApiUrl}${stepToDelete}/`);
+      await axios.delete(`${stepsApiUrl}${stepToDelete}/`, { headers });
       toast.success("Step deleted successfully!");
       fetchSteps();
       setShowConfirmDelete(false);
@@ -129,6 +139,7 @@ const Step = () => {
       toast.error("Failed to delete step.");
     }
   };
+
 
   return (
     <div className="md:h-screen p-3 rounded-tr-3xl rounded-br-3xl lg:mr-3 bg-gradient-to-l from-[#E2E9E9] to-[#ffffff]">
