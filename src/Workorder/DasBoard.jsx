@@ -20,12 +20,12 @@ const Dashboard = () => {
       {isModalVisible && <LoginModal />}
 
       {/* Button to toggle modal visibility (for demonstration purposes) */}
-      <button
+      {/* <button
         onClick={() => setIsModalVisible(!isModalVisible)}
         className="fixed bottom-5 right-5 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 z-50"
       >
         Toggle Modal
-      </button>
+      </button> */}
     </div>
   );
 };

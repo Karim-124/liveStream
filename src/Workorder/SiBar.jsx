@@ -45,7 +45,7 @@ const SiBar = () => {
         {/* User Info */}
         {user && (
           <div className={`p-4 my-6 flex items-center ${isMinimized ? "text-xs" : "text-lg"} text-center `}>
-            <FaUserCircle className={`text-3xl ${isMinimized ? "mr-2" : "mr-4"}`} />
+            <FaUserCircle className={`text-3xl ${isMinimized ? "mr-2" : "mr-2"}`} />
             <p className={`${isMinimized ? "hidden" : "block"} ml-2`}>
               Welcome <span className="font-semibold ">{user.username}</span>
             </p>
