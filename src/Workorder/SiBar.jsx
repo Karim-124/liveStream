@@ -44,7 +44,7 @@ const SiBar = () => {
       <div className="flex flex-col justify-between">
         {/* User Info */}
         {user && (
-          <div className={`p-4 my-12 flex items-center ${isMinimized ? "text-xs" : "text-lg"} text-center `}>
+          <div className={`p-4 my-6 flex items-center ${isMinimized ? "text-xs" : "text-lg"} text-center `}>
             <FaUserCircle className={`text-3xl ${isMinimized ? "mr-2" : "mr-4"}`} />
             <p className={`${isMinimized ? "hidden" : "block"} ml-2`}>
               Welcome <span className="font-semibold ">{user.username}</span>
