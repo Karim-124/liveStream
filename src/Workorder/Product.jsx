@@ -3,38 +3,35 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import logo from "../assets/logo.png";
-import { FaEdit, FaSave, FaTimes, FaTrash, FaUpload } from "react-icons/fa";
+import { FaEdit, FaSave, FaTimes, FaTrash, FaUpload, FaUser } from "react-icons/fa";
+import { useUser } from "../CONTEXT/UserContext"; // Import the useUser hook
+import gold from "../assets/gold.jpg";
 
 const Product = () => {
+    const { user } = useUser(); // Get the user from context, which contains the token
+
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
         productName: "",
         productCode: "",
         description: "",
-        createdBy: "",
-        partImage: null,
-        media: null,
+        created_by: "",
     });
-    const users = [
-        { id: 1, name: 'John Doe' },
-        { id: 2, name: 'Jane Smith' },
-        { id: 3, name: 'Alice Johnson' },
-        // Add more users as needed
-    ];
+
 
     const [savedData, setSavedData] = useState([]);
     const [editMode, setEditMode] = useState(false);
     const [editId, setEditId] = useState(null);
-    const [mediaPreview, setMediaPreview] = useState(null);
-    const [imagePreview, setImagePreview] = useState(null);
+
     const [showConfirmDelete, setShowConfirmDelete] = useState(false); // Confirm delete modal
     const [partToDelete, setPartToDelete] = useState(null);
     const apiURL = "http://127.0.0.1:8000/api/products/";
 
     // Fetch parts data from the API
     useEffect(() => {
+        const headers = { Authorization: `Bearer ${user?.token}` };
         axios
-            .get(apiURL)
+            .get(apiURL, { headers })
             .then((response) => setSavedData(response.data))
             .catch((error) => console.log(error));
     }, []);
@@ -47,67 +44,31 @@ const Product = () => {
         }));
     };
 
-    const handleFileChange = (e) => {
-        const { name, files } = e.target;
-        if (files[0]) {
-            if (name === "media") {
-                setFormData((prev) => ({
-                    ...prev,
-                    media: files[0],
-                }));
-                setMediaPreview(URL.createObjectURL(files[0]));
-            } else if (name === "partImage") {
-                setFormData((prev) => ({
-                    ...prev,
-                    partImage: files[0],
-                }));
-                setImagePreview(URL.createObjectURL(files[0]));
-            }
-        }
-    };
+
 
     // Save or Edit part
     const handleSave = async () => {
-        const { productName, productCode, description, createdBy, partImage, media } = formData;
+        const { productName, productCode, description, created_by } = formData;
 
         // Validation for mandatory fields
-        if (productName.trim() === "" || productCode.trim() === "" || (!partImage && !imagePreview)) {
+        if (productName.trim() === "" || productCode.trim() === "") {
             toast.error("Please fill in all fields and upload an image before saving.");
             return;
         }
 
-        const createdByPk = parseInt(createdBy, 10);
         const data = new FormData();
         data.append("product_name", productName);
         data.append("product_code", productCode);
         data.append("description", description);
-        data.append("created_by", createdByPk);
-        if (partImage) {
-            data.append("image", partImage);
-        } else if (imagePreview) {
-            data.append("existing_image", imagePreview);
-        }
+        data.append("created_by", created_by);
 
-        if (media) {
-            data.append("video", media);
-        } else if (mediaPreview) {
-            data.append("existing_video", mediaPreview);
-        }
-
+        const headers = { Authorization: `Bearer ${user?.token}` };
         try {
             if (editMode) {
-                await axios.put(`${apiURL}${editId}/`, data, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
+                await axios.put(`${apiURL}${editId}/`, data, { headers });
                 toast.success("Product updated successfully!");
             } else {
-                await axios.post(apiURL, data, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
+                await axios.post(apiURL, data, { headers });
                 toast.success("Product saved successfully!");
             }
             fetchParts();
@@ -123,8 +84,9 @@ const Product = () => {
 
     // Fetch parts
     const fetchParts = () => {
+        const headers = { Authorization: `Bearer ${user?.token}` };
         axios
-            .get(apiURL)
+            .get(apiURL, { headers })
             .then((response) => setSavedData(response.data))
             .catch((error) => toast.error("Failed to fetch products"));
     };
@@ -135,12 +97,8 @@ const Product = () => {
             productName: "",
             productCode: "",
             description: "",
-            createdBy: "",
-            partImage: null,
-            media: null,
+            created_by: "",
         });
-        setMediaPreview(null);
-        setImagePreview(null);
         setEditMode(false);
         setEditId(null);
         setShowModal(false);
@@ -153,19 +111,10 @@ const Product = () => {
             productName: part.product_name,
             productCode: part.product_code,
             description: part.description,
-            createdBy: part.created_by,
-            partImage: null, // Resetting image to null (new image can be uploaded)
-            media: null, // Resetting media to null (new media can be uploaded)
+            created_by: part.created_by,
         });
 
-        // Set the existing media previews if they are available
-        if (part.image) {
-            setImagePreview(part.image); // Assuming part.image contains the image URL
-        }
 
-        if (part.video) {
-            setMediaPreview(part.video); // Assuming part.video contains the video URL
-        }
 
         setEditId(part.id);
         setEditMode(true);
@@ -175,8 +124,9 @@ const Product = () => {
 
     // Delete part
     const handleDelete = async () => {
+        const headers = { Authorization: `Bearer ${user?.token}` };
         try {
-            await axios.delete(`${apiURL}${partToDelete}/`);
+            await axios.delete(`${apiURL}${partToDelete}/`, { headers });
             toast.success("Product deleted successfully!");
             fetchParts();
             setShowConfirmDelete(false); // Close confirm delete modal
@@ -199,10 +149,14 @@ const Product = () => {
             <div>
                 <button
                     className="bg-blue-500 text-white px-4 py-2 rounded mb-4 hover:bg-blue-600"
-                    onClick={() => setShowModal(true)}
+                    onClick={() => {
+                        resetForm(); // Reset form fields
+                        setShowModal(true); // Show the modal
+                    }}
                 >
                     New
                 </button>
+
 
                 {/* Modal */}
                 {showModal && (
@@ -260,92 +214,17 @@ const Product = () => {
                                     </label>
                                     <select
                                         name="createdBy"
-                                        value={formData.createdBy}
+                                        value={formData.created_by}
                                         onChange={handleInputChange}
                                         className="w-full border border-gray-300 rounded px-2 py-2 text-xs sm:text-sm"
                                     >
-                                        <option value="" disabled>Select a user</option>
-                                        {users.map((user) => (
-                                            <option key={user.id} value={user.id}>
-                                                {user.name}
-                                            </option>
-                                        ))}
+                                        <option value={user?.username}>{user?.username}</option>
+                                        {/* Add other users if needed */}
                                     </select>
                                 </div>
 
 
-                                <div className="space-y-6">
-                                    <div className="relative">
-                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                                            Upload Media
-                                        </label>
-                                        <div className="flex items-center border border-gray-300 rounded-md bg-white overflow-hidden shadow-sm">
-                                            {/* Hidden file input */}
-                                            <input
-                                                id="mediaInput"
-                                                type="file"
-                                                name="media"
-                                                accept="video/*"
-                                                onChange={handleFileChange}
-                                                className="hidden" // Hide the default file input
-                                            />
-                                            {/* Custom button to trigger file input */}
-                                            <button
-                                                type="button"
-                                                className="block w-full text-xs sm:text-sm cursor-pointer py-2 pl-10 pr-4 bg-gray-50 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                                onClick={() => document.getElementById("mediaInput").click()} // Trigger file input click
-                                            >
-                                                Upload Media
-                                            </button>
-                                            {/* Upload icon */}
-                                            <FaUpload className="absolute left-2 text-gray-500" size={20} />
-                                        </div>
 
-                                        {/* Video preview if media is selected */}
-                                        {mediaPreview && (
-                                            <video
-                                                className="mt-3 w-full h-48 object-cover rounded-md border border-gray-300 shadow-sm"
-                                                controls
-                                            >
-                                                <source src={mediaPreview} type="video/mp4" />
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        )}
-                                    </div>
-
-
-                                    <div className="relative">
-                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                                            Upload Part Image
-                                        </label>
-                                        <div className="flex items-center border border-gray-300 rounded-md bg-white overflow-hidden shadow-sm">
-                                            <input
-                                                id="fileInput"
-                                                type="file"
-                                                name="partImage"
-                                                accept="image/*"
-                                                onChange={handleFileChange}
-                                                className="hidden" // Hides the default file input
-                                            />
-                                            <button
-                                                type="button"
-                                                className="block w-full text-xs sm:text-sm cursor-pointer py-2 pl-10 pr-4 bg-gray-50 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                                onClick={() => document.getElementById("fileInput").click()} // Trigger file input click
-                                            >
-                                                Upload Part Image
-                                            </button>
-                                            <FaUpload className="absolute left-2 text-gray-500" size={20} />
-                                        </div>
-                                        {imagePreview && (
-                                            <img
-                                                src={imagePreview}
-                                                alt="Part Preview"
-                                                className="mt-3 w-full h-48 object-cover rounded-md border border-gray-300 shadow-sm"
-                                            />
-                                        )}
-                                    </div>
-
-                                </div>
 
 
                                 <div className="flex flex-col sm:flex-row justify-center gap-2 mt-2">
@@ -407,28 +286,35 @@ const Product = () => {
                         savedData.map((part) => (
                             <div
                                 key={part.id}
-                                className="w-64 bg-white rounded-xl border border-gray-300 shadow-lg my-1"
+                                className="py-2 px-2.5 rounded-xl my-4 border-l shadow-[2px_2px_5px_rgba(0,0,0,0.3)]"
                             >
-                                {part.image && (
+                                <div className="flex space-x-2 text-xl font-semibold mb-1">
                                     <img
-                                        src={typeof part.image === "string" ? part.image : URL.createObjectURL(part.image)}
-                                        alt="Part"
-                                        className="h-48 w-full object-cover rounded-t-xl border-b"
+                                        src={gold}
+                                        className="w-8 h-8 md:w-12 md:h-12 object-cover rounded-full"
+                                        alt="product"
                                     />
-                                )}
+                                    <h2>{part.product_name}</h2>
+                                </div>
+                                <p className="text-gray-700 mb-1">{part.product_code}</p>
 
-                                <div className="px-4 py-3">
+                                {/* Display Work Order Status */}
 
-                                    <div className="text-sm text-gray-600">
-                                        <p>
-                                            <strong>Prouct Name:</strong> {part.product_name}
+
+                                <div className="flex justify-between space-x-6 mt-2">
+                                    <div className="flex items-center space-x-3">
+                                        <img
+                                            src="https://media.istockphoto.com/id/1341251514/vector/gift-box-cartoon-style-icon-colorful-symbol-vector-illustration.jpg?s=2048x2048&w=is&k=20&c=jc5-fVrm3Qhnyqz2pLEHQbYTovF2W7cC90RTQBZ5oiw="
+                                            className="w-8 h-8 md:w-12 md:h-12"
+                                            alt="product"
+                                        />
+                                        <p className="text-gray-800 md:font-medium">
+                                            {part.product_name}
                                         </p>
-                                        <p>
-                                            <strong>Product Code:</strong> {part.product_code}
-                                        </p>
-                                        <p>
-                                            <strong>Product Description:</strong> {part.description}
-                                        </p>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <FaUser className="text-blue-500" /> {/* Person Icon */}
+                                        <p className="text-gray-800 md:font-medium">{part.created_by}</p>
                                     </div>
                                 </div>
                                 <div className="flex justify-center space-x-3  bg-gray-100 rounded-lg shadow-md p-2">
@@ -437,8 +323,8 @@ const Product = () => {
                                     </button>
                                     <button className="flex items-center justify-center p-2 text-red-600 bg-white border border-red-300 rounded-full shadow-sm hover:bg-red-50 hover:text-red-800 transition-colors duration-300">
                                         <FaTrash onClick={() => {
-                                            setShowConfirmDelete(true);
                                             setPartToDelete(part.id);
+                                            setShowConfirmDelete(true);
                                         }} size={18} />
                                     </button>
                                 </div>

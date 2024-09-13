@@ -1,4 +1,3 @@
-// src/components/LoginModal.js
 import React, { useState } from 'react';
 import logo from './assets/logo.png';
 import { useUser } from '../src/CONTEXT/UserContext';
@@ -6,13 +5,15 @@ import { toast } from 'react-toastify'; // Import toast for notifications
 import 'react-toastify/dist/ReactToastify.css';
 
 const LoginModal = () => {
-    const { login, isModalVisible } = useUser();
+    const { login, isModalVisible, setIsModalVisible } = useUser();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false); // Add loading state
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true); // Show spinner
         try {
             await login(username, password);
             setError('');
@@ -20,6 +21,8 @@ const LoginModal = () => {
         } catch (err) {
             setError('Login failed. Please try again.');
             toast.error('Login failed. Please check your credentials.'); // Show error toast on login failure
+        } finally {
+            setLoading(false); // Hide spinner
         }
     };
 
@@ -30,13 +33,13 @@ const LoginModal = () => {
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-100 bg-opacity-75">
             <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl flex relative">
-                <button
+                {/* <button
                     className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
                     onClick={() => setIsModalVisible(false)}
                     aria-label="Close"
                 >
                     &#10005;
-                </button>
+                </button> */}
 
                 <div className="hidden md:flex w-1/2 bg-blue-500 flex-col items-center justify-center text-white text-center p-6">
                     <h1 className="text-3xl font-bold mb-4">GoFinance</h1>
@@ -94,10 +97,15 @@ const LoginModal = () => {
 
                             <button
                                 type="submit"
-                                className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition-all"
+                                className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded flex items-center justify-center hover:bg-blue-600 transition-all"
                             >
-                                Login
+                                {loading ? (
+                                    <div className="spinner border-t-2 border-white border-solid w-6 h-6 border-t-transparent rounded-full animate-spin"></div>
+                                ) : (
+                                    'Login'
+                                )}
                             </button>
+
 
                             <div className="mt-4 text-center">
                                 <a href="#" className="text-sm text-blue-500 hover:underline">
@@ -112,4 +120,4 @@ const LoginModal = () => {
     );
 };
 
-export default LoginModal;
+export default LoginModal
